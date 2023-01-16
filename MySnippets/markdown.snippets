@@ -1,0 +1,77 @@
+# largest header
+snippet hq "Main header with a single #" bA
+# ${1:Header}
+$0
+endsnippet
+
+
+# large header
+snippet hw "Header with two #" bA
+## ${1:Header}
+$0
+endsnippet
+
+
+# small header
+snippet he "Header with three #" bA
+### ${1:Header}
+$0
+endsnippet
+
+
+# smallest header
+snippet hr "Header with four #" bA
+#### ${1:Header}
+$0
+endsnippet
+
+
+# bold the following text
+snippet "(^|[^a-zA-Z])bb" "Make text bold" rA
+`!p snip.rv = match.group(1)`**${1:Text}** $0
+endsnippet
+
+
+# italicize the following text
+snippet "(^|[^a-zA-Z])ii" "Make text italics" rA
+`!p snip.rv = match.group(1)`*${1:Text}* $0
+endsnippet
+
+
+# bold visually selected text
+snippet jbb "Make Visual-selected text bold"
+`!p snip.rv = match.group(1)`**${1:${VISUAL:}}** $0
+endsnippet
+
+
+# italicize visually selected text
+snippet jii "Make Visual-selected text italicized"
+`!p snip.rv = match.group(1)`*${1:${VISUAL:}}* $0
+endsnippet
+
+
+# make a Q and A template
+snippet fl "make flashcard-style Q and A section" bA
+Q: ${1:Question}
+
+- ${2:Evidence}
+
+A: ${3:Answer}
+
+$0
+endsnippet
+
+
+# add a link
+snippet "(^|[^a-zA-Z])ll" "Add a hyperlink" rA
+`!p snip.rv = match.group(1)`[${1:Text}](${2:Link}) $0
+endsnippet
+
+
+# add a new code block
+snippet "cc" "Add a new code block" rAb
+\`\`\`${1:Language}
+${0:Code}
+\`\`\`
+endsnippet
+

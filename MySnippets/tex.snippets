@@ -1,0 +1,448 @@
+# this tracks whether or not you are in a "math zone" (equation, $$, etc.)
+# ------------------------------------------------------#
+global !p
+def math():
+    return vim.eval('vimtex#syntax#in_mathzone()') == '1'
+endglobal
+
+global !p
+# Define matrix size in terms of rows/columns
+def mat(snip):
+    rows = snip.buffer[snip.line][2]
+    cols = snip.buffer[snip.line][3]
+
+    snip.buffer[snip.line] = ""
+
+    final_str = "\\begin{bmatrix}\n"
+    slot = 1
+
+    for i in range(int(rows)):
+        for j in range(int(cols)):
+            final_str += f"${slot}"
+            slot += 1
+            if j != int(cols) - 1:
+                final_str += " & "
+        if i == int(rows)-1:
+            break
+        final_str += "\\\\\\ \n"
+
+    final_str += "\n\\end{bmatrix}$0"
+
+    snip.expand_anon(final_str)
+endglobal
+# ------------------------------------------------------#
+
+
+# SNIPPETS
+# ------------------------------------------------------#
+# framework for the entire document
+snippet doc "Create the \document{} body and title page for a new document"
+\documentclass[titlepage, 12pt, leqno]{article}
+
+% -------------------------------------------------- %
+% -------------------- PACKAGES -------------------- %
+% -------------------------------------------------- %
+\usepackage{import}
+\usepackage{pdfpages}
+\usepackage{mathtools}
+\usepackage{transparent}
+\usepackage{xcolor}
+\usepackage{tcolorbox}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{parskip}
+\usepackage[margin = 1in]{geometry}
+
+
+% -------------------------------------------------- %
+% -------------- CUSTOM ENVIRONMENTS --------------- %
+% -------------------------------------------------- %
+\newtcolorbox{note}{colback=black!5!white,
+                          colframe=black!55!white,
+                          fonttitle=\bfseries,title=Note}
+
+\newtcolorbox{ex}{colback=blue!5!white,
+                          colframe=blue!55!white,
+                          fonttitle=\bfseries,title=Example}
+
+\newtcolorbox{definition}{colback=red!5!white,
+                          colframe=red!55!white,
+                          fonttitle=\bfseries,title=Definition}
+
+
+% -------------------------------------------------- %
+% ------------------- COMMANDS --------------------- %
+% -------------------------------------------------- %
+% Brackets, braces, etc. 
+\newcommand{\abs}[1]{\lvert #1 \rvert}
+\newcommand{\bigabs}[1]{\Bigl \lvert #1 \Bigr \rvert}
+\newcommand{\bigbracket}[1]{\Bigl [ #1 \Bigr ]}
+\newcommand{\bigparen}[1]{\Bigl ( #1 \Bigr )}
+\newcommand{\ceil}[1]{\lceil #1 \rceil}
+\newcommand{\floor}[1]{\lfloor #1 \rfloor}
+\newcommand{\norm}[1]{\| #1 \|}
+\newcommand{\bignorm}[1]{\Bigl \| #1 \Bigr \| #1}
+\newcommand{\inner}[1]{\langle #1 \rangle}
+\newcommand{\set}[1]{{ #1 }}
+
+
+% -------------------------------------------------- %
+% -------------------- SETUP ----------------------- %
+% -------------------------------------------------- %
+\title{\Huge{${1:Title}}}
+\author{\large{Mitch Harrison}}
+\date{\today}   
+\begin{document}
+\setlength{\parskip}{1\baselineskip}
+\setlength{\parindent}{15pt}
+\maketitle
+\tableofcontents
+\newpage
+
+
+% -------------------------------------------------- %
+% --------------------- BODY ----------------------- %
+% -------------------------------------------------- %
+\section{${2:Section 1}}
+
+$0
+
+\end{document}
+endsnippet
+
+
+# next text will be typewriter style
+snippet "(^|[^a-zA-Z])yt" "The \texttt{} command for typewriter-style font" rA
+`!p snip.rv = match.group(1)`\texttt{${1:Text}} $0
+endsnippet
+
+# create bulleted new list environment
+snippet "lst" "New bulleted list environment" rbA
+\begin{itemize}
+    \item $1
+\end{itemize}
+$0
+endsnippet
+
+# create bulleted new generic environment
+snippet "nv" "New generic environment" rbA
+\begin{$1}
+    $2
+\end{$1}
+$0
+endsnippet
+
+# create new equation environment. math() evaluates TRUE inside
+snippet "ee" "New equation environment" rbA
+\begin{equation}
+    $1
+\end{equation}
+$0
+endsnippet
+
+# make new note box, defined in document header
+snippet "nb" "New note box" rAb
+\begin{note}
+    $2
+\end{note}
+$0
+endsnippet
+
+# make new definition box, defined in document header
+snippet "df" "New definition box" rAb
+\begin{definition}
+    $2
+\end{definition}
+$0
+endsnippet
+
+# new custom example box, defined in document header
+snippet "xx" "New example box" rAb
+\begin{ex}
+    $2
+\end{ex}
+$0
+endsnippet
+
+# make next text bold
+snippet "(^|[^a-zA-Z])bb" "Make new bold text" rA
+`!p snip.rv = match.group(1)`\textbf{${1:text}} $0
+endsnippet
+
+# make next text italicized
+snippet "(^|[^a-zA-Z])tt" "Make new italicized text" rA
+`!p snip.rv = match.group(1)`\textit{${1:text}} $0
+endsnippet
+
+# bold highlighted text
+snippet jbb "Make Visual-selected text bold" A
+\textbf{${1:${VISUAL:}}} $0
+endsnippet
+
+# italicize highlighted text
+snippet fii "Make Visual-selected text italicized" A
+`!p snip.rv = match.group(1)`\textit{${1:${VISUAL:}}} $0
+endsnippet
+
+# mm expands to inline math, but not in the middle of words (command, etc)
+snippet "(^|[^a-zA-Z^0-9])ml" "Inline LaTeX math" rA
+ \$$1\$ $0
+endsnippet
+
+# et expands to e^{}, but not inside words (get, bet, etc.)
+context "math()"
+snippet "(^|[^a-zA-Z])et" "e^{} supercript" rA
+`!p snip.rv = match.group(1)`e^{${1:Superscript}} $0
+endsnippet
+
+# 00 automatic zero-subscript, but not after numbers
+snippet "([a-zA-Z]|[\}\)\]\|'])00" "Automatic 0 subscript" rA
+`!p snip.rv = match.group(1)`_{0}
+endsnippet
+
+# sum
+snippet "(^|[^a-zA-Z])ss" "Epsilon sum with super and subscripts" rA
+`!p snip.rv = match.group(1)`\sum_{${1:subscript}}^{${2:superscript}}$0
+endsnippet
+
+# fraction
+context "math()"
+snippet "(^|[^a-zA-Z])ff" "Fraction with numerator and demoniator" rA
+`!p snip.rv = match.group(1)`\frac{${1:Numerator}}{${2:Denominator}} $0
+endsnippet
+
+# single definite integral with limits
+context "math()"
+snippet "(^|[^a-zA-Z])dnnt" "Definite Integral" rA
+`!p snip.rv = match.group(1)`\int_{${1:subscript}}^{${2:superscript}}$0
+endsnippet
+
+# single indefinite integral with limits
+context "math()"
+snippet "(^|[^a-zA-Z])nnt" "Indefinite Integral" rA
+`!p snip.rv = match.group(1)`\int $0
+endsnippet
+
+# binomial coefficient with top and bottom entry
+context "math()"
+snippet "([^a-zA-Z])bn" "Binomial coefficient" rA
+`!p snip.rv = match.group(1)`\binom{${1:n}}{${2:choose}}$0
+endsnippet
+
+# use Omega character
+context "math()"
+snippet "(^|[^a-zA-Z])om" "lowercase omega" rA
+`!p snip.rv = match.group(1)`\omega $0
+endsnippet
+
+# use Omega character
+context "math()"
+snippet "(^|[^a-zA-Z])Om" "uppercase omega" rA
+`!p snip.rv = match.group(1)`\Omega $0
+endsnippet
+
+# cup
+context "math()"
+snippet "(^|[^a-zA-Z])cup" "Set Cup notation" rA
+`!p snip.rv = match.group(1)`\cup $0
+endsnippet
+
+# cap
+context "math()"
+snippet "(^|[^a-zA-Z])cap" "Set Cap notation" rA
+`!p snip.rv = match.group(1)`\cap $0
+endsnippet
+
+# overline
+context "math()"
+snippet "(^|[^a-zA-Z])ol" "Overline notation" rA
+`!p snip.rv = match.group(1)`\overline{${1:Text}} $0
+endsnippet
+
+# complement
+context "math()"
+snippet "([^0-9])cm" "Complement superscript" rA
+`!p snip.rv = match.group(1)`^\complement $0
+endsnippet
+
+# subset
+context "math()"
+snippet subs "Subset" A
+\subset $0
+endsnippet
+
+# subseteq
+context "math()"
+snippet sube "Subset Eq" A
+\subseteq $0
+endsnippet
+
+# conditional probability
+context "math()"
+snippet cnd "Conditional probability" A
+P(${1:A} \mid ${2:B}) $0
+endsnippet
+
+# sim
+context "math()"
+snippet sim "Sim" A
+\sim $0
+endsnippet
+
+# fancy E for expectation
+context "math()"
+snippet EE "Fancy expectation E" A
+\mathbb{E} $0
+endsnippet
+
+# fancy Z 
+context "math()"
+snippet "(^|[^a-zA-Z])ZZ" "Fancy Z" rA
+`!p snip.rv = match.group(1)`\mathbb{Z}$0
+endsnippet
+
+# fancy P 
+context "math()"
+snippet "(^|[^a-zA-Z])PP" "Fancy P" rA
+`!p snip.rv = match.group(1)`\mathbb{P}$0
+endsnippet
+
+# tripple dots with cdots
+context "math()"
+snippet ... "Cdot elipse" A
+\cdots $0
+endsnippet
+
+# cases for piecewise functions
+context "math()"
+snippet cas "Case environment for piecewise functions" bA
+\begin{cases}
+    ${1:Case 1} & ${2:Function 1} \\\\
+    ${3:Case 2} & ${4:Function 2}
+\end{cases}
+$0
+endsnippet
+
+# build an MxN matrix
+context "math()"
+pre_expand "mat(snip)"
+snippet "ma(\d)(\d)" "Add an MxN matrix" rA
+endsnippet
+
+# new math block
+snippet mm "New math block" bA
+\[
+${1:Body}
+\]
+$0
+endsnippet
+
+# "in" symbol for membership
+context "math()"
+snippet "(^|[^a-zA-Z])in" "'in' symbol for membership" rA
+`!p snip.rv = match.group(1)`\in $0
+endsnippet
+
+# "not in" symbol for membership
+context "math()"
+snippet "(^|[^a-zA-Z])nin" "'not in' symbol for membership" rA
+`!p snip.rv = match.group(1)`\notin $0
+endsnippet
+
+# generic phi symbol inside of an math environment
+context "math()"
+snippet "(^|[^a-zA-Z])phi" "phi" rA
+`!p snip.rv = match.group(1)`\phi $0
+endsnippet
+
+# generic pi symbol inside of an math environment
+context "math()"
+snippet "(^|[^a-zA-Z])pi" "pi" rA
+`!p snip.rv = match.group(1)`\pi $0
+endsnippet
+
+# add text inside of math environment
+context "math()"
+snippet "txt" "text inside math" rA
+\text{${1:Text}} \\\\
+$0
+endsnippet
+
+# infinity
+context "math()"
+snippet "inf" "infinity" rA
+\infty$0
+endsnippet
+
+# limit to infinity
+context "math()"
+snippet "lim" "limit to infinity" rA
+\lim_{${1:n} \to \infty} $0
+endsnippet
+
+# large line spacing
+snippet "\\\\\\" "big line break" rA
+\\\\[.1in]
+$0
+endsnippet
+
+# align environment
+snippet "(^|[^a-zA-Z])al" "align environment" rbA
+\begin{align*}
+    $1
+\end{align*}
+$0
+endsnippet
+
+# add new figure from visual-selected name
+snippet fig "new figure from visual" bA
+\begin{figure}[ht]
+    \centering
+    \incfig{${1:name}}
+    \caption{${2:caption}}
+    \label{fig:${3:label}}
+\end{figure}
+$0
+endsnippet
+
+# list item
+snippet itm "add a new item to a list" bA
+\item $0
+endsnippet
+
+# subsection
+snippet sub "add new subsection to document" bA
+\subsection{${1:Name}}
+$0
+endsnippet
+
+# page break
+snippet pg "page break" bA
+\pagebreak
+$0
+endsnippet
+
+# unaligned box
+context "math()"
+snippet bx "unaligned box" bA
+\boxed{$1} $0
+endsnippet
+
+# aligned box
+context "math()"
+snippet abx "aligned box" bA
+\Aboxed{$1} $0
+endsnippet
+
+# section
+snippet sec "add new section to document" bA
+\section{${1:Name}}
+$0
+endsnippet
+
+# natural log
+context "math()"
+snippet ln "natural log (ln)" A
+\ln$0
+endsnippet
+
