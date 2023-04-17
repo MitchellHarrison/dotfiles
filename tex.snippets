@@ -51,7 +51,10 @@ snippet doc "Create the \document{} body and title page for a new document"
 \usepackage{amsmath}
 \usepackage{amssymb}
 \usepackage{parskip}
+\usepackage{bbm}
 \usepackage[margin = 1in]{geometry}
+\tcbuselibrary{breakable}
+\tcbset{breakable = true}
 
 
 % -------------------------------------------------- %
@@ -166,27 +169,27 @@ endsnippet
 
 # make next text bold
 snippet "(^|[^a-zA-Z])bb" "Make new bold text" rA
-`!p snip.rv = match.group(1)`\textbf{${1:text}} $0
+`!p snip.rv = match.group(1)`\textbf{${1:text}}$0
 endsnippet
 
 # make next text italicized
 snippet "(^|[^a-zA-Z])tt" "Make new italicized text" rA
-`!p snip.rv = match.group(1)`\textit{${1:text}} $0
+`!p snip.rv = match.group(1)`\textit{${1:text}}$0
 endsnippet
 
 # bold highlighted text
 snippet jbb "Make Visual-selected text bold" A
-\textbf{${1:${VISUAL:}}} $0
+\textbf{${1:${VISUAL:}}}$0
 endsnippet
 
 # italicize highlighted text
 snippet fii "Make Visual-selected text italicized" A
-`!p snip.rv = match.group(1)`\textit{${1:${VISUAL:}}} $0
+\textit{${1:${VISUAL:}}}$0
 endsnippet
 
-# mm expands to inline math, but not in the middle of words (command, etc)
-snippet "(^|[^a-zA-Z^0-9])ml" "Inline LaTeX math" rA
- \$$1\$ $0
+# ml expands to inline math, but not in the middle of words (command, etc)
+snippet ml "Inline LaTeX math" A
+\$$1\$$0
 endsnippet
 
 # et expands to e^{}, but not inside words (get, bet, etc.)
@@ -201,14 +204,15 @@ snippet "([a-zA-Z]|[\}\)\]\|'])00" "Automatic 0 subscript" rA
 endsnippet
 
 # sum
+context "math()"
 snippet "(^|[^a-zA-Z])ss" "Epsilon sum with super and subscripts" rA
 `!p snip.rv = match.group(1)`\sum_{${1:subscript}}^{${2:superscript}}$0
 endsnippet
 
 # fraction
 context "math()"
-snippet "(^|[^a-zA-Z])ff" "Fraction with numerator and demoniator" rA
-`!p snip.rv = match.group(1)`\frac{${1:Numerator}}{${2:Denominator}} $0
+snippet "(.*)ff" "Fraction with numerator and demoniator" rA
+`!p snip.rv = match.group(1)`\frac{${1:Numerator}}{${2:Denominator}}$0
 endsnippet
 
 # single definite integral with limits
@@ -220,7 +224,7 @@ endsnippet
 # single indefinite integral with limits
 context "math()"
 snippet "(^|[^a-zA-Z])nnt" "Indefinite Integral" rA
-`!p snip.rv = match.group(1)`\int $0
+`!p snip.rv = match.group(1)`\int$0
 endsnippet
 
 # binomial coefficient with top and bottom entry
@@ -232,19 +236,31 @@ endsnippet
 # use Omega character
 context "math()"
 snippet "(^|[^a-zA-Z])om" "lowercase omega" rA
-`!p snip.rv = match.group(1)`\omega $0
+`!p snip.rv = match.group(1)`\omega$0
 endsnippet
 
 # use Omega character
 context "math()"
 snippet "(^|[^a-zA-Z])Om" "uppercase omega" rA
-`!p snip.rv = match.group(1)`\Omega $0
+`!p snip.rv = match.group(1)`\Omega$0
 endsnippet
 
 # cup
 context "math()"
 snippet "(^|[^a-zA-Z])cup" "Set Cup notation" rA
 `!p snip.rv = match.group(1)`\cup $0
+endsnippet
+
+# big cup
+context "math()"
+snippet bcup "Big up with lower and upper bounds" A
+\bigcup_{${1:Lower}}^{${2:Upper}}$0
+endsnippet
+
+# big cap
+context "math()"
+snippet bcap "Big cap with lower and upper bounds" A
+\bigcap_{${1:Lower}}^{${2:Upper}}$0
 endsnippet
 
 # cap
@@ -256,7 +272,7 @@ endsnippet
 # overline
 context "math()"
 snippet "(^|[^a-zA-Z])ol" "Overline notation" rA
-`!p snip.rv = match.group(1)`\overline{${1:Text}} $0
+`!p snip.rv = match.group(1)`\overline{${1:Text}}$0
 endsnippet
 
 # complement
@@ -277,10 +293,22 @@ snippet sube "Subset Eq" A
 \subseteq $0
 endsnippet
 
+# proper superset
+context "math()"
+snippet sups "proper superset" A
+\supset $0
+endsnippet
+
+# superset
+context "math()"
+snippet supe "superset" A
+\supseteq $0
+endsnippet
+
 # conditional probability
 context "math()"
-snippet cnd "Conditional probability" A
-P(${1:A} \mid ${2:B}) $0
+snippet "(.)cnd" "Conditional probability" rA
+`!p snip.rv = match.group(1)`P(${1:A} \mid ${2:B}) $0
 endsnippet
 
 # sim
@@ -292,7 +320,7 @@ endsnippet
 # fancy E for expectation
 context "math()"
 snippet EE "Fancy expectation E" A
-\mathbb{E} $0
+\mathbb{E}$0
 endsnippet
 
 # fancy Z 
@@ -363,14 +391,13 @@ endsnippet
 
 # add text inside of math environment
 context "math()"
-snippet "txt" "text inside math" rA
-\text{${1:Text}} \\\\
-$0
+snippet xt "text inside math" A
+\text{${1:Text}}$0
 endsnippet
 
 # infinity
 context "math()"
-snippet "inf" "infinity" rA
+snippet "nf" "infinity" rA
 \infty$0
 endsnippet
 
@@ -387,7 +414,7 @@ $0
 endsnippet
 
 # align environment
-snippet "(^|[^a-zA-Z])al" "align environment" rbA
+snippet al "align environment" bA
 \begin{align*}
     $1
 \end{align*}
@@ -444,5 +471,152 @@ endsnippet
 context "math()"
 snippet ln "natural log (ln)" A
 \ln$0
+endsnippet
+
+# middle (conditional probability)
+context "math()"
+snippet mdl "generic \middle vertical line with spacing on both sides" A
+\;\middle|\; $0
+endsnippet
+
+# left
+context "math()"
+snippet "(.*)lft" "generic \left" rA
+`!p snip.rv = match.group(1)`\left$0
+endsnippet
+
+# right
+context "math()"
+snippet "(.*)rit" "generic \right" rA
+`!p snip.rv = match.group(1)`\right$0
+endsnippet
+
+# conditional probability
+context "math()"
+snippet cond "conditional probability" A
+\mathbb{P}\left(${1:A} \;\middle|\; ${2:B}\right) $0
+endsnippet
+
+# squart root
+context "math()"
+snippet "(.*)rt" "square root" rA
+`!p snip.rv = match.group(1)`\sqrt{${1:n}}$0
+endsnippet
+
+# sigma
+context "math()"
+snippet "(.*)sig" "lowercase sigma" rA
+`!p snip.rv = match.group(1)`\sigma
+endsnippet
+
+# beta
+context "math()"
+snippet "(.*)ba" "lowercase beta" rA
+`!p snip.rv = match.group(1)`\beta$0
+endsnippet
+
+# epsilon
+context "math()"
+snippet "(.*)ep" "lowercase epsilon" rA
+`!p snip.rv = match.group(1)`\epsilon$0
+endsnippet
+
+# code environment with verbatim
+snippet vb "verbatim environment" bA
+\begin{verbatim}
+${1:code}
+\end{verbatim}
+$0
+endsnippet
+
+# big pi product
+context "math()"
+snippet pd "big Pi with sub and superscript" A
+\prod_{${1:i=1}}^{${2:\infty}}$0
+endsnippet
+
+# plus minus
+context "math()"
+snippet pm "plus/minus" A
+\pm$0
+endsnippet
+
+# table
+snippet tb "table" A
+\vspace{10px}
+\begin{center}
+\begin{tabular}{${1:c|c c c c}}
+${2:cell1}
+\end{tabular}
+\end{center}
+\vspace{10px}
+$0
+endsnippet
+
+# cdot
+context "math()"
+snippet "(.*)dt" "cdot for multiplication" rA
+`!p snip.rv = match.group(1)`\cdot$0
+endsnippet
+
+# iid tilde
+context "math()"
+snippet "(.*)iid" "iid tilde" rA
+`!p snip.rv = match.group(1)`\overset{\mathrm{iid}}{\sim}
+endsnippet
+
+# squared
+context "math()"
+snippet "(.*)\^\^" "squared (raise to the power of two)" rA
+`!p snip.rv = match.group(1)`^2$0
+endsnippet
+
+# enumerate : ordered lists
+snippet enu "enumerated list" bA
+\begin{enumerate}
+    \item $1
+\end{enumerate}$0
+endsnippet
+
+# vspace
+snippet vs "vspace 10" bA
+\vspace{10px}
+$0
+endsnippet
+
+# indicator function
+context "math()"
+snippet ndd "indicator function" A
+\mathbbm{1}_{${1:i}}$0
+endsnippet
+
+# bar
+context "math()"
+snippet "(.*)br" "bar" rA
+`!p snip.rv = match.group(1)`\bar$0
+endsnippet
+
+# lambda
+context "math()"
+snippet "(.)lda" "lambda" rA
+`!p snip.rv = match.group(1)`\lambda$0
+endsnippet
+
+# mu
+context "math()"
+snippet "(.)mu" "mu" rA
+`!p snip.rv = match.group(1)`\mu$0
+endsnippet
+
+# delta
+context "math()"
+snippet "(.)da" "delta" rA
+`!p snip.rv = match.group(1)`\delta$0
+endsnippet
+
+# Delta
+context "math()"
+snippet "(.)Da" "delta" rA
+`!p snip.rv = match.group(1)`\Delta$0
 endsnippet
 
