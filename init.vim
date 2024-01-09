@@ -14,6 +14,9 @@ set expandtab
 set noswapfile
 set wrap
 set linebreak
+set background=dark
+set colorcolumn=80
+
 
 filetype on
 filetype plugin on
@@ -37,7 +40,8 @@ Plug 'morhetz/gruvbox'
 Plug 'sainnhe/gruvbox-material'
 Plug 'sainnhe/everforest'
 Plug 'bluz71/vim-nightfly-guicolors'
-Plug 'Mofiqul/dracula.nvim'
+Plug 'hardselius/warlock'
+Plug 'rebelot/kanagawa.nvim', { 'as': 'kanagawa' }
 
 " plugs
 Plug 'preservim/nerdtree'
@@ -66,8 +70,11 @@ let g:UltiSnipsSnippetDirectories=["MySnippets"]
 command MD MarkdownPreview
 
 " set colorscheme
-colorscheme dracula
+colorscheme kanagawa
 highlight EndOfBuffer ctermbg=None guibg=None
+
+" manually change the color column color
+highlight ColorColumn ctermbg=7 guibg=#433f52
 
 " theme won't change line number bg color
 highlight clear LineNr
