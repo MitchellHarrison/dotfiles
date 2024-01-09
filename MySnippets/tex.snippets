@@ -80,6 +80,7 @@ snippet ndoc "Create the document body and title page for a new document" A
 \usepackage{bbm}
 \usepackage{algorithm}
 \usepackage{algpseudocode}
+\usepackage{algpseudocodex}
 \usepackage[margin = 1in]{geometry}
 \tcbuselibrary{breakable}
 \tcbset{breakable = true}
@@ -877,5 +878,45 @@ endsnippet
 context "algo()"
 snippet cm "add Comment" bA
 \Comment{$1}
+endsnippet
+
+# Requirements in an algorithm
+context "algo()"
+snippet req "Require statement" bA
+\Require $0
+endsnippet
+
+# Ensure statement in an algorithm
+context "algo()"
+snippet en "Ensure statement" bA
+\Ensure $0
+endsnippet
+
+# Return statement in an algorithm
+context "algo()"
+snippet ret "Return statement" bA
+\State \Return $0
+endsnippet
+
+# Output (i.e. print) statement in algo
+context "algo()"
+snippet out "Output statement" bA
+\State \Output $0
+endsnippet
+
+# write a new function in an algorithm block
+context "algo()"
+snippet fn "function statement" bA
+\Function{${1:name}}{${2:params}}
+    ${3:body}
+\EndFunction $0
+endsnippet
+
+# write a new prodecure in an algorithm block
+context "algo()"
+snippet fn "procedure statement" bA
+\Procedure{${1:name}}{${2:params}}
+    ${3:body}
+\EndProcedure $0
 endsnippet
 
