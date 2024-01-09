@@ -15,6 +15,8 @@ set noswapfile
 set wrap
 set linebreak
 set background=dark
+set colorcolumn=80
+
 
 filetype on
 filetype plugin on
@@ -71,11 +73,11 @@ command MD MarkdownPreview
 colorscheme kanagawa
 highlight EndOfBuffer ctermbg=None guibg=None
 
+" manually change the color column color
+highlight ColorColumn ctermbg=7 guibg=#433f52
+
 " theme won't change line number bg color
 highlight clear LineNr
-
-" color bar at 80 characters
-set colorcolumn=80
 
 " no theme colors after code
 highlight EndOfBuffer ctermbg=NONE
