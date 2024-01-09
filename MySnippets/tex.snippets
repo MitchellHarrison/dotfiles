@@ -1,4 +1,4 @@
-# this tracks whether or not you are in a "math zone" (equation, $$, etc.)
+# tracks whether or not you are in a "math zone" (equation, $$, etc.)
 # ------------------------------------------------------#
 global !p
 def math():
@@ -30,13 +30,38 @@ def mat(snip):
 
     snip.expand_anon(final_str)
 endglobal
+
+global !p
+def algo():
+    # Get the current line number
+    current_line = vim.current.window.cursor[0]
+
+    # Check if the current line contains "\begin{algorithm}"
+    if "\\begin{algorithm}" in vim.current.buffer[current_line - 1]:
+        return True
+
+    # Check if the current line contains "\end{algorithm}"
+    if "\\end{algorithm}" in vim.current.buffer[current_line - 1]:
+        return False
+
+    # Check if the current line is inside an "algorithm" environment
+    for i in range(current_line - 1, 0, -1):
+        line = vim.current.buffer[i - 1]
+        if "\\begin{algorithm}" in line:
+            return True
+        elif "\\end{algorithm}" in line:
+            return False
+
+    # Default to False if not inside an "algorithm" environment
+    return False
+endglobal
 # ------------------------------------------------------#
 
 
 # SNIPPETS
 # ------------------------------------------------------#
 # framework for the entire document
-snippet doc "Create the \document{} body and title page for a new document"
+snippet ndoc "Create the document body and title page for a new document" A
 \documentclass[titlepage, 12pt, leqno]{article}
 
 % -------------------------------------------------- %
@@ -46,12 +71,15 @@ snippet doc "Create the \document{} body and title page for a new document"
 \usepackage{pdfpages}
 \usepackage{mathtools}
 \usepackage{transparent}
+\usepackage{enumitem}
 \usepackage{xcolor}
 \usepackage{tcolorbox}
 \usepackage{amsmath}
 \usepackage{amssymb}
 \usepackage{parskip}
 \usepackage{bbm}
+\usepackage{algorithm}
+\usepackage{algpseudocode}
 \usepackage[margin = 1in]{geometry}
 \tcbuselibrary{breakable}
 \tcbset{breakable = true}
@@ -188,14 +216,8 @@ snippet fii "Make Visual-selected text italicized" A
 endsnippet
 
 # ml expands to inline math, but not in the middle of words (command, etc)
-snippet ml "Inline LaTeX math" A
-\$$1\$$0
-endsnippet
-
-# et expands to e^{}, but not inside words (get, bet, etc.)
-context "math()"
-snippet "(^|[^a-zA-Z])et" "e^{} supercript" rA
-`!p snip.rv = match.group(1)`e^{${1:Superscript}} $0
+snippet "(.+)ml" "Inline LaTeX math" rA
+`!p snip.rv = match.group(1)`\$$1\$$0
 endsnippet
 
 # 00 automatic zero-subscript, but not after numbers
@@ -206,7 +228,13 @@ endsnippet
 # sum
 context "math()"
 snippet "(^|[^a-zA-Z])ss" "Epsilon sum with super and subscripts" rA
-`!p snip.rv = match.group(1)`\sum_{${1:subscript}}^{${2:superscript}}$0
+`!p snip.rv = match.group(1)`\sum_{${1:i=1}}^{${2:n}}$0
+endsnippet
+
+# sum without super or subscripts
+context "math()"
+snippet "(^|[^a-zA-Z])ds" "Epsilon sum without super and subscripts" rA
+`!p snip.rv = match.group(1)`\sum $0
 endsnippet
 
 # fraction
@@ -319,8 +347,14 @@ endsnippet
 
 # fancy E for expectation
 context "math()"
-snippet EE "Fancy expectation E" A
-\mathbb{E}$0
+snippet "(.*)EE" "Fancy expectation E" rA
+`!p snip.rv = match.group(1)`\mathbb{E}$0
+endsnippet
+
+# blackboard bold R for real numbers
+context "math()"
+snippet "(.*)RR" "real number R" rA
+`!p snip.rv = match.group(1)`\mathbb{R}$0
 endsnippet
 
 # fancy Z 
@@ -380,13 +414,13 @@ endsnippet
 # generic phi symbol inside of an math environment
 context "math()"
 snippet "(^|[^a-zA-Z])phi" "phi" rA
-`!p snip.rv = match.group(1)`\phi $0
+`!p snip.rv = match.group(1)`\phi$0
 endsnippet
 
 # generic pi symbol inside of an math environment
 context "math()"
-snippet "(^|[^a-zA-Z])pi" "pi" rA
-`!p snip.rv = match.group(1)`\pi $0
+snippet "(.*)pi" "pi" rA
+`!p snip.rv = match.group(1)`\pi$0
 endsnippet
 
 # add text inside of math environment
@@ -407,6 +441,12 @@ snippet "lim" "limit to infinity" rA
 \lim_{${1:n} \to \infty} $0
 endsnippet
 
+# limit to something
+context "math()"
+snippet "(.*)dlm" "limit to something" rA
+`!p snip.rv = match.group(1)`\lim_{${1:n} \to ${2:\infty}} $0
+endsnippet
+
 # large line spacing
 snippet "\\\\\\" "big line break" rA
 \\\\[.1in]
@@ -414,7 +454,7 @@ $0
 endsnippet
 
 # align environment
-snippet al "align environment" bA
+snippet aal "align environment" bA
 \begin{align*}
     $1
 \end{align*}
@@ -425,9 +465,8 @@ endsnippet
 snippet fig "new figure from visual" bA
 \begin{figure}[ht]
     \centering
-    \incfig{${1:name}}
+    \includegraphics[width=0.8\textwidth]{${1:name}}
     \caption{${2:caption}}
-    \label{fig:${3:label}}
 \end{figure}
 $0
 endsnippet
@@ -506,7 +545,13 @@ endsnippet
 # sigma
 context "math()"
 snippet "(.*)sig" "lowercase sigma" rA
-`!p snip.rv = match.group(1)`\sigma
+`!p snip.rv = match.group(1)`\sigma$0
+endsnippet
+
+# Sigma
+context "math()"
+snippet "(.*)Sig" "uppercase sigma" rA
+`!p snip.rv = match.group(1)`\Sigma$0
 endsnippet
 
 # beta
@@ -593,30 +638,244 @@ endsnippet
 # bar
 context "math()"
 snippet "(.*)br" "bar" rA
-`!p snip.rv = match.group(1)`\bar$0
+`!p snip.rv = match.group(1)`\bar $0
 endsnippet
 
 # lambda
 context "math()"
-snippet "(.)lda" "lambda" rA
+snippet "(.*)lda" "lambda" rA
 `!p snip.rv = match.group(1)`\lambda$0
 endsnippet
 
 # mu
 context "math()"
-snippet "(.)mu" "mu" rA
+snippet "(.*)mu" "mu" rA
 `!p snip.rv = match.group(1)`\mu$0
 endsnippet
 
 # delta
 context "math()"
-snippet "(.)da" "delta" rA
+snippet "(.*)dla" "delta" rA
 `!p snip.rv = match.group(1)`\delta$0
 endsnippet
 
 # Delta
 context "math()"
-snippet "(.)Da" "delta" rA
+snippet "(.*)Dla" "delta" rA
 `!p snip.rv = match.group(1)`\Delta$0
+endsnippet
+
+# negation elbow
+context "math()"
+snippet "(.*)neg" "negation elbow" rA
+`!p snip.rv = match.group(1)`\neg$0
+endsnippet
+
+# superscript
+context "math()"
+snippet "(.)\^" "exponent superscript" rA
+`!p snip.rv = match.group(1)`^{${1:n}}$0
+endsnippet
+
+# derivative
+context "math()"
+snippet "(.*)dr" "derivative symbol" rA
+`!p snip.rv = match.group(1)`\frac{d}{d${1:x}}$0
+endsnippet
+
+# succ/preference
+context "math()"
+snippet "(.*)pf" "succ" rA
+`!p snip.rv = match.group(1)`\succ$0
+endsnippet
+
+# empty set
+context "math()"
+snippet "(.*)est" "empty set notation" rA
+`!p snip.rv = match.group(1)`\emptyset$0
+endsnippet
+
+# mathcal F (calligraphy)
+context "math()"
+snippet "(.*)FF" "calligraphy F" rA
+`!p snip.rv = match.group(1)`\mathcal{F}$0
+endsnippet
+
+# mathcal H (calligraphy)
+context "math()"
+snippet "(.*)HH" "calligraphy H" rA
+`!p snip.rv = match.group(1)`\mathcal{H}$0
+endsnippet
+
+# general calligraphy
+context "math()"
+snippet "(.*)CC" "calligraphy H" rA
+`!p snip.rv = match.group(1)`\mathcal{${1:H}}$0
+endsnippet
+
+# perp notation
+context "math()"
+snippet "(.*)prp" "perp (conditional independence)" rA
+`!p snip.rv = match.group(1)`\perp $0
+endsnippet
+
+# proportionate to
+context "math()"
+snippet "(.*)pro" "proportionate to" rA	
+`!p snip.rv = match.group(1)`\propto $0
+endsnippet
+
+# theta
+context "math()"
+snippet "(.*)tha" "theta" rA 
+`!p snip.rv = match.group(1)`\theta$0
+endsnippet
+
+# underscore subscript
+context "math()"
+snippet "(.*)_" "underscore subscript" rA
+`!p snip.rv = match.group(1)`_{${1:n}}$0
+endsnippet
+
+# tilde
+context "math()"
+snippet "(.*)tld" "tilde" rA
+`!p snip.rv = match.group(1)`\tilde{${1:x}}$0
+endsnippet
+
+# approximate
+context "math()"
+snippet "(.*)app" "approximate" rA
+`!p snip.rv = match.group(1)`\approx$0
+endsnippet
+
+# alpha
+context "math()"
+snippet "(.*)apa" "alpha" rA
+`!p snip.rv = match.group(1)`\alpha$0
+endsnippet
+
+# nabla (gradient)
+context "math()"
+snippet "(.*)grd" "nabla (gradient)" rA
+`!p snip.rv = match.group(1)`\nabla$0
+endsnippet
+
+# hat
+context "math()"
+snippet "(.*)ht" "hat" rA
+`!p snip.rv = match.group(1)`\hat $0
+endsnippet
+
+# tau
+context "math()"
+snippet "(.*)tau" "tau" rA
+`!p snip.rv = match.group(1)`\tau$0
+endsnippet
+
+# vector
+context "math()"
+snippet "(.*)vc" "vector arrow" rA
+`!p snip.rv = match.group(1)`\vec $0
+endsnippet
+
+# right arrow
+context "math()"
+snippet "(.*)rra" "right arrow" rA
+`!p snip.rv = match.group(1)`\rightarrow $0
+endsnippet
+
+# sub-subsection
+snippet ssub "sub-subsectin" bA
+\subsubsection{${1:Name}}
+$0
+endsnippet
+
+# partial
+context "math()"
+snippet "(.*)pt" "partial symbol" rA
+`!p snip.rv = match.group(1)`\partial $0
+endsnippet
+
+# kappa
+context "math()"
+snippet "(.*)kp" "kappa" rA
+`!p snip.rv = match.group(1)`\kappa$0
+endsnippet
+
+# psi
+context "math()"
+snippet "(.*)psi" "lowercase psi" rA
+`!p snip.rv = match.group(1)`\psi$0
+endsnippet
+
+#underset
+context "math()"
+snippet "(.*)uds" "underset" rA
+`!p snip.rv = match.group(1)`\underset{${1:n}}{${2:x}}$0
+endsnippet
+
+# rho
+context "math()"
+snippet "(.*)rho" "rho" rA
+`!p snip.rv = match.group(1)`\rho$0
+endsnippet
+
+# eta
+context "math()"
+snippet "(.*)tta" "eta" rA
+`!p snip.rv = match.group(1)`\eta$0
+endsnippet
+
+# gamma
+context "math()"
+snippet "(.*)gmm" "lowercase gamma" rA
+`!p snip.rv = match.group(1)`\gamma$0
+endsnippet
+
+# new algorithm block
+snippet aag "new algorithm block" bA
+\begin{algorithm}
+\caption{${1:Caption}}
+\begin{algorithmic}
+${2:body}
+\end{algorithmic}
+\end{algorithm}
+$0
+endsnippet
+
+# new state within an algorithm
+context "algo()"
+snippet st "new State" bA
+\State $0
+endsnippet
+
+# new if statement within an algorithm
+context "algo()"
+snippet if "new IfElse" bA
+\If{$1}
+    ${2:body}
+\EndIf$0
+endsnippet
+
+# new while loop in an algorithm
+context "algo()"
+snippet whi "new While loop" bA
+\While{$1}
+    ${2:body}
+\EndWhile$0
+endsnippet
+
+# new else-if statement in an algorithm
+context "algo()"
+snippet elf "new Else-if" bA
+\ElsIf{$1}
+    ${2:body}
+endsnippet
+
+# add a comment into an algorithm
+context "algo()"
+snippet cm "add Comment" bA
+\Comment{$1}
 endsnippet
 
