@@ -217,7 +217,7 @@ snippet fii "Make Visual-selected text italicized" A
 endsnippet
 
 # ml expands to inline math, but not in the middle of words (command, etc)
-snippet "(.+)ml" "Inline LaTeX math" rA
+snippet "(.*)ml" "Inline LaTeX math" rA
 `!p snip.rv = match.group(1)`\$$1\$$0
 endsnippet
 
@@ -632,8 +632,8 @@ endsnippet
 
 # indicator function
 context "math()"
-snippet ndd "indicator function" A
-\mathbbm{1}_{${1:i}}$0
+snippet "(.*)ndd" "indicator function" rA
+`!p snip.rv = match.group(1)`\mathbbm{1}(${1:i})$0
 endsnippet
 
 # bar
@@ -646,6 +646,12 @@ endsnippet
 context "math()"
 snippet "(.*)lda" "lambda" rA
 `!p snip.rv = match.group(1)`\lambda$0
+endsnippet
+
+# Lambda
+context "math()"
+snippet "(.*)Lda" "Lambda" rA
+`!p snip.rv = match.group(1)`\Lambda$0
 endsnippet
 
 # mu
@@ -732,6 +738,12 @@ snippet "(.*)tha" "theta" rA
 `!p snip.rv = match.group(1)`\theta$0
 endsnippet
 
+# capital theta
+context "math()"
+snippet "(.*)Tha" "capital theta" rA 
+`!p snip.rv = match.group(1)`\Theta$0
+endsnippet
+
 # underscore subscript
 context "math()"
 snippet "(.*)_" "underscore subscript" rA
@@ -786,6 +798,12 @@ snippet "(.*)rra" "right arrow" rA
 `!p snip.rv = match.group(1)`\rightarrow $0
 endsnippet
 
+# left arrow
+context "math()"
+snippet "(.*)llr" "left arrow" rA
+`!p snip.rv = match.group(1)`\leftarrow $0
+endsnippet
+
 # sub-subsection
 snippet ssub "sub-subsectin" bA
 \subsubsection{${1:Name}}
@@ -838,7 +856,7 @@ endsnippet
 snippet aag "new algorithm block" bA
 \begin{algorithm}
 \caption{${1:Caption}}
-\begin{algorithmic}
+\begin{algorithmic}[1]
 ${2:body}
 \end{algorithmic}
 \end{algorithm}
@@ -865,6 +883,14 @@ snippet whi "new While loop" bA
 \While{$1}
     ${2:body}
 \EndWhile$0
+endsnippet
+
+# new for loop in an algorithm
+context "algo()"
+snippet for "new For loop" bA
+\For{$1}
+    ${2:body}
+\EndFor$0
 endsnippet
 
 # new else-if statement in an algorithm
@@ -914,9 +940,31 @@ endsnippet
 
 # write a new prodecure in an algorithm block
 context "algo()"
-snippet fn "procedure statement" bA
+snippet pr "procedure statement" bA
 \Procedure{${1:name}}{${2:params}}
     ${3:body}
 \EndProcedure $0
+endsnippet
+
+# call a procedure in an algo
+context "algo()"
+snippet call "call a procedure" bA
+\State \Call{${1:name}}{${2:attrs}} $0
+endsnippet
+
+# ell 
+context "math()"
+snippet "(.*)ell" "ell" rA
+`!p snip.rv = match.group(1)`\ell$0
+endsnippet
+
+# call outside of algorithm
+snippet "(.*)cll" "call a procedure outside of an algo environment" rA
+`!p snip.rv = match.group(1)`\Call{${1:name}}{}$0
+endsnippet
+
+context "math()"
+snippet "(.*)chh" "chi" rA
+`!p snip.rv = match.group(1)`\chi$0
 endsnippet
 
